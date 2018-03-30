@@ -36,13 +36,13 @@
 
 ## 双向绑定（响应式原理）所涉及到的技术
 
-![双向数据绑定](http://p1fg8xetu.bkt.clouddn.com/bidirectional_data_binding.jpg)
-
 > Object.defineProperty
 > Observer
 > Watcher
 > Dep
 > Directive
+
+![](http://p1fg8xetu.bkt.clouddn.com/bidirectional_data_binding.jpg)
 
 ### 实现数据绑定的做法：
 

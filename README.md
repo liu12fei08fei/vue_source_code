@@ -42,7 +42,7 @@
 > Dep
 > Directive
 
-![](http://p1fg8xetu.bkt.clouddn.com/bidirectional_data_binding.jpg)
+![双向数据绑定](./image/bidirectional_data_binding.jpg)
 
 ### 实现数据绑定的做法：
 
@@ -223,7 +223,7 @@ process.nextTick(function(){
 // 1 2 哈哈哈 3 4 5 6
 ```
 
-![event loop](http://p1fg8xetu.bkt.clouddn.com/eventLoop.jpg)
+![event loop](./image/eventLoop.jpg)
 
 ### 为什么js是单线程？
 
@@ -265,7 +265,7 @@ vm.$data.sex = '男'
 console.log(vm.$data);
 ```
 
-![setDate](http://p1fg8xetu.bkt.clouddn.com/setDate.jpg)
+![setDate](./image/setDate.jpg)
 
 * 根据上面的原理图，能够明白，当后添加属性的时候，并没有触发`Watcher`
 * 所以在Vue3.0把这套原理删除掉，采用es6提出的`Proxy`和`Reflect`

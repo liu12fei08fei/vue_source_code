@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+  <head></head>
+  <body>
+  <div id="app">
+    <input type="text" id="a" v-model="text">
+    {{text}}
+  </div>
+  <!-- 批量更新 -->
+  <script src="src/Batcher.js"></script>
+  <!-- 依赖集合 -->
+  <script src="src/Dep.js"></script>
+  <script src="src/Observe.js"></script>
+  <script src="src/Watcher.js"></script>
+  <!-- 编译模板引擎，把类似{{}}、v-model编译成浏览器能够识别的代码 -->
+  <script src="src/Compile.js"></script>
+  <script src="src/MVVM.js"></script>
+  <script>
+    // 创建vue实例
+    var vm = new Vue({
+      el: 'app',
+      data: {
+        text: 'hello world'
+      }
+    });
+  </script>
+  </body>
+</html>

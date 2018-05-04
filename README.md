@@ -2,6 +2,12 @@
 
 [TOC]
 
+## 简介
+
+* 15:20讲架构遗留问题
+* 16:30开始讲vue文件结构
+* 35:30开始讲解vue源码
+
 ## Vue架构概览-src
 
 * ./compiler目录是编译模板
@@ -42,7 +48,8 @@
 > Dep
 > Directive
 
-![双向数据绑定](./image/bidirectional_data_binding.jpg)
+![双向数据绑定](http://p1fg8xetu.bkt.clouddn.com/bidirectional_data_binding.jpg)
+![深入双向数据绑定](http://p1fg8xetu.bkt.clouddn.com/bidirectional_data_binding.jpg2.jpg)
 
 ### 实现数据绑定的做法：
 
@@ -105,6 +112,11 @@ console.log(book.edition);
 
 * IE8是第一个实现`Object.defineProperty`方法的浏览器版本
 * 然后，这个版本的实现存在诸多限制：只能在DOM对象上使用这个方法，而且只能创建访问器属性
+
+> 兼容IE8及以下方法
+
+* VBScript
+* 浏览器私有方法：`__defineSetter__`、`__defineGetter__`
 
 ## 设计模式
 
@@ -171,27 +183,29 @@ console.log(book.edition);
 * 在发布者模式中，发布者和订阅者之间多了一个发布通道；一方面从发布者接受事件，另一方面想订阅者发布事件；订阅者需要从事件通道订阅事件
 
 ```
-// 基于jQuery
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script>
 (function($){
 	var o = $({});
 	$.subscribe = function(){
-		o.on.apply(o, arguments);
+		o.on.apply(o,arguments);
 	};
 	$.unsubscribe = function(){
-		o.off.apply(o, arguments);
+		o.off.apply(o,arguments);
 	};
 	$.publish = function(){
-		o.trigger.apply(o, arguments);
+		o.trigger.apply(o,arguments);
 	};
-}(jQuery));
+})(jQuery);
 // 订阅
 $.subscribe('/some/topic',function(e,a,b,c){
 	console.log(a+b+c);
 });
 // 发布
-$.publish('/some/topic',['a','b','c']);
+$.publish('/some/topic',['a','b','c']);//输出abc
 // 退订
-$.unsubscribe('/some/topic');
+// $.unsubscribe('/some/topic');
+</script>
 ```
 
 ## 事件队列：异步macrotask宏队列 和 microtask微队列 简介
@@ -223,7 +237,32 @@ process.nextTick(function(){
 // 1 2 哈哈哈 3 4 5 6
 ```
 
-![event loop](./image/eventLoop.jpg)
+![event loop](http://p1fg8xetu.bkt.clouddn.com/eventLoop.jpg)
+
+### 详解
+
+**microtasks**
+
+* process.nextTick
+* promise
+* Object.observe
+* MutationObserver
+
+**macrotasks**
+
+* setTimeout
+* setInterval
+* setImmediate
+* I/O
+* UI渲染
+
+**据whatwg（网页技术组织）规范介绍：**
+
+* 一个事件循环(event loop)会有一个或多个任务队列(task queue)
+* 每一个 `event loop` 都有一个 `microtask queue`
+* `task queue == macrotask queue != microtask queue`
+* 一个任务 task 可以放入 `macrotask queue` 也可以放入 `microtask queue` 中
+* 调用栈清空(只剩全局)，然后执行所有的microtask。当所有可执行的microtask执行完毕之后。循环再次从macrotask开始，找到其中一个任务队列执行完毕，然后再执行所有的microtask，这样一直循环下去
 
 ### 为什么js是单线程？
 
@@ -265,7 +304,7 @@ vm.$data.sex = '男'
 console.log(vm.$data);
 ```
 
-![setDate](./image/setDate.jpg)
+![setDate](http://p1fg8xetu.bkt.clouddn.com/setDate.jpg)
 
 * 根据上面的原理图，能够明白，当后添加属性的时候，并没有触发`Watcher`
 * 所以在Vue3.0把这套原理删除掉，采用es6提出的`Proxy`和`Reflect`
@@ -393,6 +432,120 @@ var element = {
 **document.createDocumentFragment**
 
 * 创建一个虚拟的节点对象或者说，用来创建文档碎片节点。它可以包含各种类型的节点，在创建之初是空的
-* 文档片段存在于内存中，并不在DOM树中，所以将子元素插入到文档片段时不会引起页面回流(对元素位置和几何上的计算)。因此，使用文档片段document fragments 通常会起到优化性能的作用
+* 文档片段存在于内存中，并不在DOM树中，所以将子元素插入到文档片段时不会引起页面回流(对元素位置和几何上的计算)。因此，使用文档片段`document fragments` 通常会起到优化性能的作用
 
+**虚拟dom解决的方式**
+
+```
+let fragment = document.createDocumentFragment('div');
+let arr2 = [];
+for(var item in fragment){
+	arr2.push(item);
+}
+console.log(arr2);
+```
+
+* 循环出来59个属性
+
+`["children", "firstElementChild", "lastElementChild", "childElementCount", "getElementById", "prepend", "append", "querySelector", "querySelectorAll", "ELEMENT_NODE", "ATTRIBUTE_NODE", "TEXT_NODE", "CDATA_SECTION_NODE", "ENTITY_REFERENCE_NODE", "ENTITY_NODE", "PROCESSING_INSTRUCTION_NODE", "COMMENT_NODE", "DOCUMENT_NODE", "DOCUMENT_TYPE_NODE", "DOCUMENT_FRAGMENT_NODE", "NOTATION_NODE", "DOCUMENT_POSITION_DISCONNECTED", "DOCUMENT_POSITION_PRECEDING", "DOCUMENT_POSITION_FOLLOWING", "DOCUMENT_POSITION_CONTAINS", "DOCUMENT_POSITION_CONTAINED_BY", "DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC", "nodeType", "nodeName", "baseURI", "isConnected", "ownerDocument", "parentNode", "parentElement", "childNodes", "firstChild", "lastChild", "previousSibling", "nextSibling", "nodeValue", "textContent", "hasChildNodes", "getRootNode", "normalize", "cloneNode", "isEqualNode", "isSameNode", "compareDocumentPosition", "contains", "lookupPrefix", "lookupNamespaceURI", "isDefaultNamespace", "insertBefore", "appendChild", "replaceChild", "removeChild", "addEventListener", "removeEventListener", "dispatchEvent"]`
+
+## Vue运行时候的优化
+
+### 节省开销，减少不必要的dom diff
+
+* `hoisting static trees`
+
+**template**
+
+```
+<div>
+	<p class="foo">
+		this is static
+	</p>
+</div>
+```
+
+**output**
+
+```
+function render(){
+	return this._renderStatic(0)
+}
+```
+
+* `_renderStatic(0)`设置为零的时候，vue认为，这段代码不需要进行diff操作
+
+### 持续优化
+
+* `skipping static bindings`
+
+**template**
+
+```
+<div>
+	<p class="foo">
+		{{msg}}
+	</p>
+</div>
+```
+
+**output**
+
+```
+return h('div',[
+		h(
+			'p',
+			{staticClass:'foo'},
+			[...]
+		)
+	])
+```
+
+* 把静态的资源，直接静态处理
+
+### 继续优化
+
+* `SSR:optimizing Virtual DOM`
+* `render functions into string concat`
+* 把大部分的操作，进行string操作，直接提高了性能：vdom=>string concat
+
+**template**
+
+```
+<div>
+	<p class="foo">
+		{{msg}}
+	</p>
+	<comp></comp>
+</div>
+```
+
+**output**
+
+```
+function render(){
+	return h('div',[
+		this._ssrString(
+		`<p class="foo">${this.msg}</p>`
+		),
+		h('comp')//mix w/ vdom
+	])
+}
+```
+
+### SSR:inlining Critical CSS
+
+* 把公用的css进行提取，然后在优化
+* 首屏css提取，其余css异步处理
+* 把js中的延迟加载，用到了css中
+* 随着技术的发展，html、css、js都会统一的进行极致优化
+
+### IDEA:compile away parts of Vue that's not used in your app
+
+* 编译我们使用的框架，把不用资源进行tree-shaking处理
+
+## 批量处理 and vue setState
+
+* 创建watcher的时候，就把this，push到队列里面去
+* vue中使用Event loop来更新state
 
